@@ -88,3 +88,22 @@ body {
 .game-info {
   margin-left: 20px;
 }
+
+.leaderboard {
+  margin-top: 20px;
+  padding: 10x;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+.leaderboard h2 {
+  text-align: center;
+}
+
+.leaderboard ol {
+  padding-left: 20px;
+}
+
+.leaderboard li {
+  margin-bottom: 5px;
+}

@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+// useEffect was not in previously above
+import './styles.css';
+//
 
 function Square({ value, onSquareClick }) {
   return (
@@ -52,7 +55,8 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
-export default function Game() {
+//export default function Game() {
+function Game({ isAuthenticated, onGameEnd }) {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
@@ -62,6 +66,8 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+    const winner = calculateWinner(nextSquares);
+    if (winner && isAuthenticated) onGameEnd(winner);
   }
 
   function jumpTo(nextMove) {
@@ -112,4 +118,41 @@ function calculateWinner(squares) {
     }
   }
   return null;
+}
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/GetLewisTacToeLeaders')
+      .then(response => response.json())
+      .then(setLeaderboard)
+      .catch(error => console.error('Error fetching leaderboard data:', error));
+  }, []);
+
+  function handleGameEnd(winner) {
+    console.log('${winner} won!');
+  }
+
+  return (
+    <div className='app'>
+      {isAuthenticated ? (
+        <>
+          <button onClick={() => setIsAuthenticated(false)}>Logout</button>
+          <Game isAuthenticated={isAuthenticated} onGameEnd={handleGameEnd} />
+          <div className="leaderboard">
+            <h2>Leaderboard</h2>
+            <ol>
+              {leaderboard.map((player, index) => (
+                <li key={index}>{player.userName}: {player.totalWins}</li>
+              ))}
+            </ol>
+          </div>
+        </>
+      ) : (
+        <button onClick={() => setIsAuthenticated(true)}>Login to Play</button>
+      )}
+    </div>
+  );
 }
